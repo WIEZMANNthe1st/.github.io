@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>כלב נובח לא נושך</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #f2f2f2;
+      font-family: 'Heebo', Arial, sans-serif;
+      min-height: 100vh;
+      color: #222;
+    }
+
+    /* --- סרגל עליון --- */
+    .top-bar {
+      background-color: #c0001e;
+      color: #fff;
+      font-size: 0.8em;
+      font-weight: 700;
+      padding: 6px 24px;
+      letter-spacing: 1px;
+    }
+
+    /* --- כותרת האתר --- */
+    header {
+      background-color: #fff;
+      border-bottom: 3px solid #c0001e;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header img.logo {
+      height: 140px;
+      width: auto;
+    }
+
+    header .site-title {
+      font-size: 1.5em;
+      font-weight: 800;
+      color: #c0001e;
+      letter-spacing: -0.5px;
+    }
+
+    /* --- תפריט ניווט --- */
+    nav {
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 0 24px;
+      display: flex;
+      gap: 0;
+    }
+
+    nav a {
+      color: #333;
+      text-decoration: none;
+      font-size: 0.92em;
+      font-weight: 700;
+      padding: 12px 18px;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: #c0001e;
+      border-bottom-color: #c0001e;
+    }
+
+    /* --- תוכן ראשי --- */
+    main {
+      max-width: 900px;
+      margin: 28px auto;
+      padding: 0 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeIn 0.35s ease both;
+    }
+
+    /* --- כרטיס ראשי --- */
+    .hero-card {
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .hero-card .profile-img {
+      width: 100%;
+      height: 520px;
+      object-fit: cover;
+      object-position: center 30%;
+      display: block;
+    }
+
+    .hero-card .content {
+      padding: 24px 28px 28px;
+    }
+
+    .breaking-badge {
+      display: inline-block;
+      background: #c0001e;
+      color: #fff;
+      font-size: 0.72em;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    .hero-card h1 {
+      font-size: 1.9em;
+      font-weight: 800;
+      color: #111;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .hero-card p {
+      color: #555;
+      font-size: 1em;
+      font-weight: 300;
+      line-height: 1.8;
+    }
+
+    /* --- סקשן תחומי עניין --- */
+    .section-title {
+      font-size: 1.1em;
+      font-weight: 800;
+      color: #111;
+      border-right: 4px solid #c0001e;
+      padding-right: 10px;
+      margin-bottom: 14px;
+    }
+
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      list-style: none;
+    }
+
+    .interests-grid li {
+      background: #fff;
+      border-radius: 4px;
+      padding: 20px 16px;
+      font-size: 1.05em;
+      font-weight: 700;
+      color: #222;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border-top: 3px solid #c0001e;
+      transition: box-shadow 0.2s, transform 0.2s;
+      text-align: center;
+    }
+
+    .interests-grid li:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+      transform: translateY(-2px);
+    }
+
+    .interests-grid li::before {
+      display: block;
+      font-size: 1.6em;
+      margin-bottom: 8px;
+      content: "🐾";
+    }
+
+    /* --- דפי פנים --- */
+    .inner-card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 36px 36px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .inner-card h3 {
+      font-size: 2em;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 16px;
+    }
+
+    .inner-card p {
+      color: #555;
+      font-size: 1em;
+      font-weight: 300;
+      line-height: 1.9;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 28px;
+      background: #c0001e;
+      color: #fff;
+      font-size: 0.9em;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      padding: 10px 24px;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #99001a;
+    }
+
+    .back-btn::before {
+      content: "← ";
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top-bar">חדשות חמות • כלב נובח לא נושך • עדכון אחרון: עכשיו</div>
+
+  <header>
+    <img src="LOGO.png" alt="לוגו" class="logo">
+    <span class="site-title">ויצמן והנחיר הבודד</span>
+  </header>
+
+  <nav>
+    <a class="active" onclick="showPage('page-home')">ראשי</a>
+    <a onclick="showPage('page-lishen')">לישון</a>
+    <a onclick="showPage('page-leechol')">לאכול</a>
+    <a onclick="showPage('page-livvoach')">לנבוח</a>
+  </nav>
+
+  <main>
+
+    <!-- דף הבית -->
+    <div class="page active" id="page-home">
+      <div class="hero-card">
+        <img src="עניבה.jpg" alt="תמונה שלי" class="profile-img">
+        <div class="content">
+          <span class="breaking-badge">בלעדי</span>
+          <h1>ויצמן והנחיר הבודד</h1>
+          <p>היי! אני כלב סקרן שאוהב לנבוח. רגע... דופקים בדלת... ואואואואואואואואואואאו!!!!!</p>
+        </div>
+      </div>
+
+      <p class="section-title">תחומי העניין שלי</p>
+      <ul class="interests-grid">
+        <li onclick="showPage('page-lishen')">לישון</li>
+        <li onclick="showPage('page-leechol')">לאכול</li>
+        <li onclick="showPage('page-livvoach')">לנבוח</li>
+      </ul>
+    </div>
+
+    <!-- דף לישון -->
+    <div class="page" id="page-lishen">
+      <div class="inner-card">
+        <h3>לישון</h3>
+        <p>אין כמו תנומה טובה באמצע היום. או בלילה. או בבוקר. בעצם — תמיד.</p>
+        <button class="back-btn" onclick="showPage('page-home')">חזרה לראשי</button>
+      </div>
+    </div>
+
+    <!-- דף לאכול -->
+    <div class="page" id="page-leechol">
+      <div class="inner-card">
+        <h3>לאכול</h3>
+        <p>אוכל זה לא סתם אוכל. זו אהבה. זו שגרה. זה הדבר הכי טוב שקורה שלוש פעמים ביום.</p>
+        <button class="back-btn" onclick="showPage('page-home')">חזרה לראשי</button>
+      </div>
+    </div>
+
+    <!-- דף לנבוח -->
+    <div class="page" id="page-livvoach">
+      <div class="inner-card">
+        <h3>לנבוח</h3>
+        <p>כשדופקים בדלת, כשעובר חתול, כשנושבת רוח — כל רגע הוא הזדמנות לנבוח.</p>
+        <button class="back-btn" onclick="showPage('page-home')">חזרה לראשי</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+
+      document.querySelectorAll('nav a').forEach(function(a) {
+        a.classList.remove('active');
+      });
+    }
+  </script>
+
+</body>
+
+</html>
