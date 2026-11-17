@@ -1,0 +1,6 @@
+data.json
+data.json.tmp
+messages.json
+media/
+cert.pem
+key.pem

@@ -9,45 +9,81 @@
 <title>צ'אט משפחתי</title>
 <style>
   :root {
-    --bar: #075e54; --bg: #ece5dd; --me: #dcf8c6; --them: #ffffff;
-    --text: #111; --muted: #667781; --input: #fff; --accent: #25d366;
+    --bar: #075e54; --bg: #ece5dd; --me: #dcf8c6; --them: #ffffff; --list: #fff;
+    --text: #111; --muted: #667781; --input: #fff; --accent: #25d366; --line: #e9edef; --blue: #34b7f1;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bar: #1f2c34; --bg: #0b141a; --me: #005c4b; --them: #202c33;
-            --text: #e9edef; --muted: #8696a0; --input: #2a3942; }
+    :root { --bar: #1f2c34; --bg: #0b141a; --me: #005c4b; --them: #202c33; --list: #111b21;
+            --text: #e9edef; --muted: #8696a0; --input: #2a3942; --line: #222d34; }
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
-  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-         background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
-  header { background: var(--bar); color: #fff; padding: 10px 16px;
-           padding-top: calc(10px + env(safe-area-inset-top)); display: flex; align-items: center; gap: 12px; }
-  header .avatar { width: 40px; height: 40px; border-radius: 50%; background: #128c7e;
-                   display: grid; place-items: center; font-size: 22px; }
-  header h1 { font-size: 17px; margin: 0; }
-  header small { opacity: .8; font-size: 12px; display: block; }
-  #status { margin-inline-start: auto; width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; }
-  #status.on { background: var(--accent); }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); }
+  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; }
+  header { background: var(--bar); color: #fff; padding: 10px 12px; padding-top: calc(10px + env(safe-area-inset-top));
+           display: flex; align-items: center; gap: 10px; min-height: 60px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .titles { flex: 1; min-width: 0; }
+  header small { opacity: .8; font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .icon-btn { background: none; border: none; color: inherit; font-size: 22px; padding: 6px; cursor: pointer; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; flex-shrink: 0; }
+  .dot.on { background: var(--accent); }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 20px;
+            color: #fff; flex-shrink: 0; font-weight: 600; }
+  header .avatar { width: 38px; height: 38px; font-size: 18px; }
+
+  /* רשימת שיחות */
+  #chats { flex: 1; overflow-y: auto; background: var(--list); }
+  .chat-row { display: flex; gap: 12px; align-items: center; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--line); }
+  .chat-row .mid { flex: 1; min-width: 0; }
+  .chat-row .name { font-weight: 600; font-size: 16px; }
+  .chat-row .preview { color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .chat-row .side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 12px; color: var(--muted); }
+  .badge { background: var(--accent); color: #fff; border-radius: 12px; min-width: 22px; height: 22px; padding: 0 6px;
+           display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .fab { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 20px; width: 58px; height: 58px;
+         border-radius: 16px; border: none; background: var(--accent); color: #fff; font-size: 26px;
+         box-shadow: 0 3px 8px rgba(0,0,0,.3); cursor: pointer; }
+
+  /* שיחה */
   #list { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; }
-  .msg { max-width: 80%; padding: 6px 9px 4px; border-radius: 8px; background: var(--them);
-         align-self: flex-end; box-shadow: 0 1px 1px rgba(0,0,0,.13); word-wrap: break-word; white-space: pre-wrap; }
+  .msg { max-width: 80%; padding: 6px 9px 4px; border-radius: 8px; background: var(--them); align-self: flex-end;
+         box-shadow: 0 1px 1px rgba(0,0,0,.13); word-wrap: break-word; white-space: pre-wrap; }
   .msg.me { background: var(--me); align-self: flex-start; }
   .msg .who { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-  .msg .time { font-size: 11px; color: var(--muted); text-align: left; margin-top: 2px; }
+  .msg .meta { font-size: 11px; color: var(--muted); text-align: left; margin-top: 2px; display: flex; gap: 4px; justify-content: flex-end; direction: ltr; }
   .msg img { max-width: 100%; border-radius: 6px; display: block; margin: 2px 0; }
-  .day { align-self: center; background: var(--them); color: var(--muted); font-size: 12px;
-         padding: 4px 10px; border-radius: 8px; margin: 8px 0; }
+  .msg audio { width: 240px; max-width: 100%; height: 40px; display: block; margin: 2px 0; }
+  .tick { letter-spacing: -3px; padding-left: 3px; }
+  .tick.blue { color: var(--blue); }
+  .day { align-self: center; background: var(--them); color: var(--muted); font-size: 12px; padding: 4px 10px; border-radius: 8px; margin: 8px 0; }
   footer { display: flex; gap: 8px; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); align-items: flex-end; }
-  #text { flex: 1; border: none; border-radius: 22px; padding: 11px 16px; font-size: 16px; resize: none;
-          max-height: 120px; background: var(--input); color: var(--text); font-family: inherit; }
-  button.round { width: 46px; height: 46px; border-radius: 50%; border: none; background: #128c7e;
-                 color: #fff; font-size: 20px; cursor: pointer; flex-shrink: 0; }
+  #text { flex: 1; border: none; border-radius: 22px; padding: 11px 16px; font-size: 16px; resize: none; max-height: 120px;
+          background: var(--input); color: var(--text); font-family: inherit; }
+  button.round { width: 46px; height: 46px; border-radius: 50%; border: none; background: #128c7e; color: #fff;
+                 font-size: 20px; cursor: pointer; flex-shrink: 0; }
   #pick { background: transparent; color: var(--muted); font-size: 24px; }
-  #login { position: fixed; inset: 0; background: var(--bar); color: #fff; display: flex;
-           flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; }
+  #recbar { flex: 1; display: flex; align-items: center; gap: 10px; background: var(--input); border-radius: 22px; padding: 0 16px; height: 46px; }
+  #recbar .rec { width: 12px; height: 12px; border-radius: 50%; background: #e74c3c; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  #recCancel { background: #8696a0; }
+
+  /* מסכים קופצים */
+  #login { position: fixed; inset: 0; background: var(--bar); color: #fff; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; gap: 16px; padding: 24px; z-index: 10; }
   #login h2 { margin: 0; font-size: 26px; }
   #login input { font-size: 18px; padding: 12px 16px; border-radius: 10px; border: none; width: 100%; max-width: 300px; text-align: center; }
-  #login button { font-size: 18px; padding: 12px 32px; border-radius: 24px; border: none; background: var(--accent); color: #fff; font-weight: 600; }
+  .btn { font-size: 17px; padding: 11px 28px; border-radius: 24px; border: none; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--muted); }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: grid; place-items: center; padding: 16px; z-index: 5; }
+  .modal .box { background: var(--list); color: var(--text); border-radius: 14px; padding: 18px; width: 100%; max-width: 380px; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { margin: 0 0 12px; }
+  .modal input[type=text] { width: 100%; font-size: 16px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--input); color: var(--text); }
+  .modal label { display: flex; align-items: center; gap: 10px; padding: 9px 0; font-size: 16px; border-bottom: 1px solid var(--line); }
+  .modal label input { width: 20px; height: 20px; }
+  .modal .actions { display: flex; justify-content: flex-start; gap: 8px; margin-top: 14px; }
+  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #333; color: #fff;
+           padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 20; max-width: 90%; text-align: center; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -57,26 +93,52 @@
     <h2>צ'אט משפחתי</h2>
     <p style="margin:0;opacity:.85">איך קוראים לך?</p>
     <input id="nameInput" maxlength="30" placeholder="למשל: אבא" autocomplete="off">
-    <button id="enter">כניסה</button>
+    <button class="btn" id="enter">כניסה</button>
   </div>
 
-  <header>
-    <div class="avatar">👨‍👩‍👧‍👦</div>
-    <div>
-      <h1>המשפחה</h1>
-      <small id="online">מתחבר…</small>
+  <!-- מסך רשימת שיחות -->
+  <section class="screen" id="home">
+    <header>
+      <div class="titles"><h1>צ'אט משפחתי</h1><small id="homeSub">מתחבר…</small></div>
+      <div class="dot" id="status" title="מצב חיבור"></div>
+    </header>
+    <div id="chats"></div>
+    <button class="fab" id="newGroup" title="קבוצה חדשה">👥</button>
+  </section>
+
+  <!-- מסך שיחה -->
+  <section class="screen hidden" id="chatScreen">
+    <header>
+      <button class="icon-btn" id="back" title="חזרה">→</button>
+      <div class="avatar" id="chatAvatar"></div>
+      <div class="titles"><h1 id="chatTitle"></h1><small id="chatSub"></small></div>
+    </header>
+    <div id="list"></div>
+    <footer>
+      <button class="round" id="pick" title="שליחת תמונה">📷</button>
+      <input type="file" id="file" accept="image/*" class="hidden">
+      <input type="file" id="audioFile" accept="audio/*" capture class="hidden">
+      <textarea id="text" rows="1" placeholder="הודעה"></textarea>
+      <div id="recbar" class="hidden"><div class="rec"></div><span id="recTime">0:00</span><span style="color:var(--muted)">מקליט…</span></div>
+      <button class="round hidden" id="recCancel" title="ביטול">✕</button>
+      <button class="round" id="send" title="שליחה">🎤</button>
+    </footer>
+  </section>
+
+  <!-- קבוצה חדשה -->
+  <div class="modal hidden" id="groupModal">
+    <div class="box">
+      <h3>קבוצה חדשה</h3>
+      <input type="text" id="groupTitle" maxlength="40" placeholder="שם הקבוצה (למשל: הילדים)">
+      <div id="groupMembers" style="margin-top:10px"></div>
+      <div class="actions">
+        <button class="btn" id="groupCreate">יצירה</button>
+        <button class="btn ghost" id="groupCancel">ביטול</button>
+      </div>
     </div>
-    <div id="status" title="מצב חיבור"></div>
-  </header>
+  </div>
 
-  <div id="list"></div>
-
-  <footer>
-    <button class="round" id="pick" title="שליחת תמונה">📷</button>
-    <input type="file" id="file" accept="image/*" class="hidden">
-    <textarea id="text" rows="1" placeholder="הודעה"></textarea>
-    <button class="round" id="send" title="שליחה">➤</button>
-  </footer>
+  <div id="toast" class="hidden"></div>
 
 <script>
 (() => {
@@ -85,116 +147,351 @@
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
-  let me = store.get('familyChatName');
-  let lastId = 0;
-  let lastDay = '';
-  let es = null;
 
-  function start() {
-    $('login').classList.add('hidden');
-    connect();
-    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  // ---------- מצב ----------
+  let me = store.get('familyChatName');
+  const msgs = new Map();            // id -> הודעה
+  let users = [], groups = [], reads = {}, online = [];
+  let current = null;                // מזהה השיחה הפתוחה
+  let lastId = 0;
+  let connected = false;
+  let outbox = [];                   // הודעות שעוד לא נשלחו
+  try { outbox = JSON.parse(store.get('familyChatOutbox') || '[]'); } catch {}
+  const saveOutbox = () => store.set('familyChatOutbox', JSON.stringify(outbox.filter(o => !o.audio && !o.image)));
+  const elById = new Map();          // אלמנטים של הודעות בשיחה הפתוחה
+
+  // ---------- עזרים ----------
+  const dmId = other => 'dm:' + [me, other].sort().join('|');
+  const isGroup = c => c.startsWith('g:');
+  function members(chat) {
+    if (chat === 'family') return users;
+    if (chat.startsWith('dm:')) return chat.slice(3).split('|');
+    const g = groups.find(g => g.id === chat); return g ? g.members : [];
   }
+  function chatTitle(chat) {
+    if (chat === 'family') return 'המשפחה';
+    if (chat.startsWith('dm:')) return chat.slice(3).split('|').find(n => n !== me) || me;
+    const g = groups.find(g => g.id === chat); return g ? g.title : '';
+  }
+  function colorFor(name) { let h = 0; for (const c of name) h = (h * 31 + c.codePointAt(0)) % 360; return `hsl(${h} 55% 45%)`; }
+  function avatarFor(chat, el) {
+    if (chat === 'family') { el.textContent = '👨‍👩‍👧‍👦'; el.style.background = '#128c7e'; }
+    else if (isGroup(chat)) { el.textContent = '👥'; el.style.background = '#5b7083'; }
+    else { const n = chatTitle(chat); el.textContent = [...n][0] || '?'; el.style.background = colorFor(n); }
+  }
+  const fmtTime = ts => new Date(ts).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  const fmtDay = ts => new Date(ts).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'numeric' });
+  function fmtShort(ts) {
+    const d = new Date(ts), now = new Date();
+    return d.toDateString() === now.toDateString() ? fmtTime(ts) : d.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' });
+  }
+  const fmtDur = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  function preview(m) {
+    if (m.audio) return '🎤 הודעה קולית' + (m.duration ? ` (${fmtDur(m.duration)})` : '');
+    if (m.image) return '📷 תמונה' + (m.text ? ': ' + m.text : '');
+    return m.text;
+  }
+  let toastTimer;
+  function toast(t, ms = 3500) { $('toast').textContent = t; $('toast').classList.remove('hidden'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.add('hidden'), ms); }
+  const chatMsgs = chat => [...msgs.values()].filter(m => m.chat === chat).sort((a, b) => a.id - b.id);
+  const unread = chat => { const r = (reads[chat] || {})[me] || 0; return [...msgs.values()].filter(m => m.chat === chat && m.name !== me && m.id > r).length; };
+
+  // ---------- כניסה ----------
+  function start() { $('login').classList.add('hidden'); connect(); renderHome();
+    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
   if (me) start();
   $('enter').onclick = () => {
-    const n = $('nameInput').value.trim();
-    if (!n) return;
-    me = n; store.set('familyChatName', n); start();
+    const n = $('nameInput').value.replace(/[|\n\r]/g, '').trim();
+    if (!n) return; me = n; store.set('familyChatName', n); start();
   };
   $('nameInput').onkeydown = e => { if (e.key === 'Enter') $('enter').click(); };
 
-  function fmtTime(ts) { return new Date(ts).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }); }
-  function fmtDay(ts) { return new Date(ts).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'numeric' }); }
-
-  function render(m) {
-    if (m.id <= lastId) return;
-    lastId = m.id;
-    const list = $('list');
-    const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
-    const day = fmtDay(m.id);
-    if (day !== lastDay) {
-      lastDay = day;
-      const d = document.createElement('div'); d.className = 'day'; d.textContent = day; list.appendChild(d);
-    }
-    const el = document.createElement('div');
-    const mine = m.name === me;
-    el.className = 'msg' + (mine ? ' me' : '');
-    if (!mine) {
-      const w = document.createElement('div'); w.className = 'who'; w.textContent = m.name;
-      w.style.color = colorFor(m.name); el.appendChild(w);
-    }
-    if (m.image) { const img = document.createElement('img'); img.src = m.image; img.onload = () => atBottom && scrollDown(); el.appendChild(img); }
-    if (m.text) { const t = document.createElement('div'); t.textContent = m.text; el.appendChild(t); }
-    const tm = document.createElement('div'); tm.className = 'time'; tm.textContent = fmtTime(m.id); el.appendChild(tm);
-    list.appendChild(el);
-    if (atBottom || mine) scrollDown();
-    return mine;
-  }
-  function scrollDown() { const l = $('list'); l.scrollTop = l.scrollHeight; }
-  function colorFor(name) {
-    let h = 0; for (const c of name) h = (h * 31 + c.codePointAt(0)) % 360;
-    return `hsl(${h} 60% 42%)`;
-  }
-
+  // ---------- חיבור לשרת ----------
+  let es = null, retry = null;
   function connect() {
     if (es) es.close();
     es = new EventSource(`events?name=${encodeURIComponent(me)}&since=${lastId}`);
-    es.onopen = () => $('status').classList.add('on');
-    es.onerror = () => { $('status').classList.remove('on'); $('online').textContent = 'אין חיבור… מנסה שוב'; };
-    es.addEventListener('history', e => { JSON.parse(e.data).forEach(render); scrollDown(); });
+    es.onopen = () => { connected = true; updateStatus(); flushOutbox(); };
+    es.onerror = () => { connected = false; updateStatus(); es.close(); clearTimeout(retry); retry = setTimeout(connect, 3000); };
+    es.addEventListener('init', e => {
+      const d = JSON.parse(e.data);
+      users = d.users; groups = d.groups; reads = d.reads;
+      d.messages.forEach(addMsg);
+      renderHome(); if (current) renderChat(); markRead();
+    });
     es.addEventListener('message', e => {
       const m = JSON.parse(e.data);
-      render(m);
-      if (m.name !== me) notify(m);
+      const isNew = !msgs.has(m.id);
+      addMsg(m);
+      if (!isNew) return;
+      const pending = outbox.find(o => o.cid === m.cid && m.name === me);
+      if (pending) { outbox = outbox.filter(o => o !== pending); saveOutbox(); }
+      if (m.chat === current) { removePending(m.cid); appendMsg(m, true); markRead(); }
+      renderHome();
+      if (m.name !== me && (m.chat !== current || document.hidden)) notify(m);
     });
-    es.addEventListener('online', e => {
-      const names = JSON.parse(e.data);
-      $('online').textContent = names.length ? 'מחוברים: ' + names.join(', ') : 'אין מחוברים';
+    es.addEventListener('read', e => {
+      const { chat, name, id } = JSON.parse(e.data);
+      (reads[chat] ||= {})[name] = Math.max((reads[chat] || {})[name] || 0, id);
+      if (chat === current) updateTicks();
+      renderHome();
     });
+    es.addEventListener('users', e => { users = JSON.parse(e.data); renderHome(); if (current) updateHeader(); });
+    es.addEventListener('groups', e => { groups = JSON.parse(e.data); renderHome(); });
+    es.addEventListener('online', e => { online = JSON.parse(e.data); updateStatus(); if (current) updateHeader(); });
   }
+  function addMsg(m) { msgs.set(m.id, m); if (m.id > lastId) lastId = m.id; }
+  function updateStatus() {
+    $('status').classList.toggle('on', connected);
+    $('homeSub').textContent = !connected ? 'אין חיבור… מנסה שוב' : `שלום ${me} · מחוברים עכשיו: ${online.length}`;
+    if (current) updateHeader();
+  }
+
+  // ---------- רשימת שיחות ----------
+  function renderHome() {
+    const list = ['family', ...groups.map(g => g.id), ...users.filter(u => u !== me).map(dmId)];
+    const last = c => { const ms = chatMsgs(c); return ms[ms.length - 1]; };
+    list.sort((a, b) => ((last(b) || {}).id || (b === 'family' ? 1 : 0)) - ((last(a) || {}).id || (a === 'family' ? 1 : 0)));
+    const box = $('chats'); box.textContent = '';
+    for (const c of list) {
+      const row = document.createElement('div'); row.className = 'chat-row';
+      const av = document.createElement('div'); av.className = 'avatar'; avatarFor(c, av);
+      const mid = document.createElement('div'); mid.className = 'mid';
+      const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = chatTitle(c);
+      if (c.startsWith('dm:') && online.includes(chatTitle(c))) nm.textContent += ' 🟢';
+      const pv = document.createElement('div'); pv.className = 'preview';
+      const l = last(c);
+      pv.textContent = l ? (l.name === me ? 'אני: ' : (c.startsWith('dm:') ? '' : l.name + ': ')) + preview(l)
+                         : (c === 'family' ? 'כל המשפחה' : isGroup(c) ? members(c).join(', ') : 'שיחה פרטית');
+      mid.append(nm, pv);
+      const side = document.createElement('div'); side.className = 'side';
+      side.textContent = l ? fmtShort(l.id) : '';
+      const u = unread(c);
+      if (u) { const b = document.createElement('div'); b.className = 'badge'; b.textContent = u; side.appendChild(b); }
+      row.append(av, mid, side);
+      row.onclick = () => openChat(c);
+      box.appendChild(row);
+    }
+    const total = list.reduce((s, c) => s + unread(c), 0);
+    document.title = total ? `(${total}) צ'אט משפחתי` : "צ'אט משפחתי";
+  }
+
+  // ---------- שיחה ----------
+  function openChat(c, push = true) {
+    current = c;
+    if (push) history.pushState({ chat: c }, '');
+    $('home').classList.add('hidden'); $('chatScreen').classList.remove('hidden');
+    renderChat(); markRead();
+  }
+  function closeChat() { stopRecording(false); current = null; $('chatScreen').classList.add('hidden'); $('home').classList.remove('hidden'); renderHome(); }
+  $('back').onclick = () => history.back();
+  window.addEventListener('popstate', e => { if (e.state && e.state.chat) openChat(e.state.chat, false); else if (current) closeChat(); });
+
+  function updateHeader() {
+    $('chatTitle').textContent = chatTitle(current);
+    avatarFor(current, $('chatAvatar'));
+    let sub;
+    if (current.startsWith('dm:')) sub = online.includes(chatTitle(current)) ? 'מחובר/ת עכשיו' : 'לא מחובר/ת';
+    else { const mem = members(current); const on = mem.filter(n => online.includes(n) && n !== me);
+      sub = mem.join(', ') + (on.length ? ` · מחוברים: ${on.join(', ')}` : ''); }
+    $('chatSub').textContent = connected ? sub : 'אין חיבור לשרת… מנסה שוב';
+  }
+
+  let lastDay = '';
+  function renderChat() {
+    updateHeader();
+    const list = $('list'); list.textContent = ''; elById.clear(); lastDay = '';
+    chatMsgs(current).forEach(m => appendMsg(m, false));
+    outbox.filter(o => o.chat === current).forEach(o => appendMsg({ ...o, id: o.ts, name: me, pending: true }, false));
+    scrollDown();
+  }
+  function appendMsg(m, live) {
+    const list = $('list');
+    const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+    const day = fmtDay(m.id);
+    if (day !== lastDay) { lastDay = day; const d = document.createElement('div'); d.className = 'day'; d.textContent = day; list.appendChild(d); }
+    const mine = m.name === me;
+    const el = document.createElement('div'); el.className = 'msg' + (mine ? ' me' : '');
+    if (!mine && (current === 'family' || isGroup(current))) {
+      const w = document.createElement('div'); w.className = 'who'; w.textContent = m.name; w.style.color = colorFor(m.name); el.appendChild(w);
+    }
+    if (m.image) { const img = document.createElement('img'); img.src = m.image; img.loading = 'lazy'; img.onload = () => atBottom && scrollDown(); el.appendChild(img); }
+    if (m.audio) { const a = document.createElement('audio'); a.controls = true; a.preload = 'metadata'; a.src = m.audio; el.appendChild(a); }
+    if (m.text) { const t = document.createElement('div'); t.textContent = m.text; el.appendChild(t); }
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const tm = document.createElement('span'); tm.textContent = fmtTime(m.id); meta.appendChild(tm);
+    if (mine) {
+      const tk = document.createElement('span'); tk.className = 'tick'; meta.appendChild(tk);
+      el.onclick = e => { if (e.target.tagName !== 'AUDIO' && !m.pending) showReaders(m); };
+    }
+    el.appendChild(meta);
+    if (m.pending) el.dataset.cid = m.cid;
+    list.appendChild(el);
+    elById.set(m.id, { el, m });
+    setTick(el, m);
+    if (!live || atBottom || mine) scrollDown();
+  }
+  function removePending(cid) { const el = $('list').querySelector(`[data-cid="${CSS.escape(cid)}"]`); if (el) el.remove(); }
+  function readersOf(m) {
+    const others = members(m.chat).filter(n => n !== me);
+    return { others, read: others.filter(o => ((reads[m.chat] || {})[o] || 0) >= m.id) };
+  }
+  function setTick(el, m) {
+    const tk = el.querySelector('.tick'); if (!tk) return;
+    if (m.pending) { tk.textContent = '🕓'; return; }
+    const { others, read } = readersOf(m);
+    tk.textContent = read.length ? '✓✓' : '✓';
+    tk.classList.toggle('blue', others.length > 0 && read.length === others.length);
+  }
+  function updateTicks() { for (const { el, m } of elById.values()) if (m.name === me) setTick(el, m); }
+  function showReaders(m) {
+    const { others, read } = readersOf(m);
+    if (!others.length) return;
+    const notRead = others.filter(o => !read.includes(o));
+    toast((read.length ? '✓✓ נקרא ע"י: ' + read.join(', ') : 'עוד לא נקרא') + (notRead.length && read.length ? '\nעוד לא: ' + notRead.join(', ') : ''));
+  }
+  function scrollDown() { const l = $('list'); l.scrollTop = l.scrollHeight; }
+
+  // ---------- סימון "נקרא" ----------
+  function markRead() {
+    if (!current || document.hidden || !connected) return;
+    const ms = chatMsgs(current).filter(m => m.name !== me);
+    const maxId = ms.length ? ms[ms.length - 1].id : 0;
+    if (maxId > ((reads[current] || {})[me] || 0)) {
+      (reads[current] ||= {})[me] = maxId;
+      fetch('read', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: me, chat: current, id: maxId }) }).catch(() => {});
+      renderHome();
+    }
+  }
+  document.addEventListener('visibilitychange', markRead);
 
   function notify(m) {
     if (navigator.vibrate) navigator.vibrate(150);
-    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-      try { new Notification(m.name, { body: m.text || '📷 תמונה' }); } catch {}
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try { new Notification(m.chat === 'family' || isGroup(m.chat) ? `${m.name} @ ${chatTitle(m.chat)}` : m.name, { body: preview(m) }); } catch {}
     }
   }
 
-  async function send(payload) {
-    try {
-      const r = await fetch('send', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: me, ...payload }) });
-      if (!r.ok) throw 0;
-      return true;
-    } catch { alert('ההודעה לא נשלחה - בדקו שאתם מחוברים לרשת'); return false; }
+  // ---------- שליחה (עם תור לשליחה חוזרת) ----------
+  function queue(payload) {
+    const o = { ...payload, chat: current, cid: Math.random().toString(36).slice(2) + Date.now().toString(36), ts: Date.now() };
+    outbox.push(o); saveOutbox();
+    appendMsg({ ...o, id: o.ts, name: me, pending: true }, true);
+    flushOutbox();
   }
+  let flushing = false;
+  async function flushOutbox() {
+    if (flushing || !outbox.length) return;
+    flushing = true;
+    for (const o of [...outbox]) {
+      try {
+        const r = await fetch('send', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: me, chat: o.chat, cid: o.cid, text: o.text, image: o.image, audio: o.audio, duration: o.duration }) });
+        if (r.status === 400) { outbox = outbox.filter(x => x !== o); removePending(o.cid); continue; }
+        if (!r.ok) throw 0;
+        outbox = outbox.filter(x => x !== o); saveOutbox();
+      } catch { break; } // אין חיבור - ננסה שוב בהתחברות הבאה
+    }
+    flushing = false;
+  }
+  setInterval(() => connected && flushOutbox(), 10000);
 
-  $('send').onclick = async () => {
+  function updateSendIcon() { $('send').textContent = $('text').value.trim() || recorder ? '➤' : '🎤'; $('send').title = $('send').textContent === '🎤' ? 'הקלטה' : 'שליחה'; }
+  $('send').onclick = () => {
+    if (recorder) return stopRecording(true);
     const t = $('text').value;
-    if (!t.trim()) return;
-    $('text').value = ''; autosize();
-    if (!(await send({ text: t }))) $('text').value = t;
-    $('text').focus();
+    if (!t.trim()) return startRecording();
+    $('text').value = ''; autosize(); updateSendIcon();
+    queue({ text: t }); $('text').focus();
   };
   $('text').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); $('send').click(); }
+    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); if ($('text').value.trim()) $('send').click(); }
   });
   function autosize() { const t = $('text'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }
-  $('text').addEventListener('input', autosize);
+  $('text').addEventListener('input', () => { autosize(); updateSendIcon(); });
 
+  // תמונות
   $('pick').onclick = () => $('file').click();
   $('file').onchange = async () => {
-    const f = $('file').files[0]; $('file').value = '';
-    if (!f) return;
-    const img = new Image();
-    img.src = URL.createObjectURL(f);
-    await img.decode();
-    const max = 1024, s = Math.min(1, max / Math.max(img.width, img.height));
-    const c = document.createElement('canvas');
-    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    URL.revokeObjectURL(img.src);
-    send({ image: c.toDataURL('image/jpeg', 0.7) });
+    const f = $('file').files[0]; $('file').value = ''; if (!f) return;
+    const img = new Image(); img.src = URL.createObjectURL(f);
+    try { await img.decode(); } catch { return toast('לא ניתן לפתוח את התמונה'); }
+    const s = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src);
+    queue({ image: c.toDataURL('image/jpeg', 0.72) });
+  };
+
+  // ---------- הודעות קוליות ----------
+  let recorder = null, recChunks = [], recStart = 0, recTimer = null, recStream = null;
+  const blobToDataUrl = b => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); });
+  async function startRecording() {
+    if (!window.isSecureContext || !navigator.mediaDevices || !window.MediaRecorder) {
+      toast('להקלטה ישירה פתחו את הכתובת שמתחילה ב-https (מופיעה במחשב). בינתיים נפתח מקליט הטלפון.', 5000);
+      return $('audioFile').click();
+    }
+    try { recStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch { return toast('אין הרשאה למיקרופון. אפשרו גישה בהגדרות הדפדפן.'); }
+    const type = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'].find(t => MediaRecorder.isTypeSupported(t));
+    recorder = new MediaRecorder(recStream, type ? { mimeType: type } : undefined);
+    recChunks = []; recorder.ondataavailable = e => e.data.size && recChunks.push(e.data);
+    recorder.start(250); recStart = Date.now();
+    $('text').classList.add('hidden'); $('pick').classList.add('hidden');
+    $('recbar').classList.remove('hidden'); $('recCancel').classList.remove('hidden');
+    $('recTime').textContent = '0:00';
+    recTimer = setInterval(() => {
+      const s = (Date.now() - recStart) / 1000; $('recTime').textContent = fmtDur(s);
+      if (s >= 300) stopRecording(true); // עד 5 דקות
+    }, 250);
+    updateSendIcon();
+    if (navigator.vibrate) navigator.vibrate(40);
+  }
+  function stopRecording(sendIt) {
+    if (!recorder) return;
+    const r = recorder; recorder = null; clearInterval(recTimer);
+    const duration = (Date.now() - recStart) / 1000;
+    r.onstop = async () => {
+      recStream.getTracks().forEach(t => t.stop());
+      if (!sendIt || duration < 0.7) return;
+      const blob = new Blob(recChunks, { type: r.mimeType || 'audio/webm' });
+      queue({ audio: await blobToDataUrl(blob), duration: Math.round(duration) });
+    };
+    r.stop();
+    $('text').classList.remove('hidden'); $('pick').classList.remove('hidden');
+    $('recbar').classList.add('hidden'); $('recCancel').classList.add('hidden');
+    updateSendIcon();
+  }
+  $('recCancel').onclick = () => stopRecording(false);
+  $('audioFile').onchange = async () => {
+    const f = $('audioFile').files[0]; $('audioFile').value = ''; if (!f) return;
+    if (f.size > 8 * 1024 * 1024) return toast('הקובץ גדול מדי');
+    queue({ audio: await blobToDataUrl(f) });
+  };
+
+  // ---------- קבוצה חדשה ----------
+  $('newGroup').onclick = () => {
+    const box = $('groupMembers'); box.textContent = '';
+    const others = users.filter(u => u !== me);
+    if (!others.length) return toast('עוד אין בני משפחה נוספים שנכנסו לצ\'אט');
+    for (const u of others) {
+      const l = document.createElement('label'); const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.value = u; l.append(cb, document.createTextNode(u)); box.appendChild(l);
+    }
+    $('groupTitle').value = ''; $('groupModal').classList.remove('hidden'); $('groupTitle').focus();
+  };
+  $('groupCancel').onclick = () => $('groupModal').classList.add('hidden');
+  $('groupCreate').onclick = async () => {
+    const title = $('groupTitle').value.trim();
+    const mem = [...$('groupMembers').querySelectorAll('input:checked')].map(c => c.value);
+    if (!title) return toast('תנו שם לקבוצה');
+    if (!mem.length) return toast('בחרו לפחות משתתף אחד');
+    try {
+      const r = await fetch('group', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: me, title, members: mem }) });
+      const d = await r.json(); if (!d.ok) throw 0;
+      $('groupModal').classList.add('hidden');
+      const wait = setInterval(() => { if (groups.find(g => g.id === d.id)) { clearInterval(wait); openChat(d.id); } }, 100);
+      setTimeout(() => clearInterval(wait), 5000);
+    } catch { toast('לא ניתן ליצור קבוצה - אין חיבור'); }
   };
 })();
 </script>
